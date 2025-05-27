@@ -151,8 +151,18 @@ class Attribute():
 
 class ProductWithAttributes():
 
-    def __init__(self, category, producer, model, description, pdf_url, tabel_url, reach_compliant, rohs_compliant, ul_comparable, attributes):
-        ...
+    def __init__(self, category, producer, model_id, description, pdf_url, table_url, reach_compliant, rohs_compliant, ul_comparable, features, attributes):
+        self.category = category
+        self.producer = producer,
+        self.model_id = model_id
+        self.description = description
+        self.pdf_url = pdf_url
+        self.table_url = table_url
+        self.reach_compliant = reach_compliant
+        self.rohs_compliant = rohs_compliant
+        self.ul_comparable = ul_comparable
+        self.features = features
+        self.attributes = attributes
 
 def read_properties(pdf_file):
 
@@ -209,27 +219,77 @@ def read_basic_info(pdf_file):
     product_description = ""
     return product_category, producer, product_model_id, product_description, reach_compliant, rohs_compliant, ul_comparable
 
+
+def read_features(pdf_file):
+
+    page = pdf_file.pages[0]
+    extracted_text = page.extract_text(layout = False)
+    split = []
+
+    split.append(extracted_text.find("Features Applications"))
+    split.append(extracted_text.find("Properties"))
+
+    extracted_text = (extracted_text[split[0]:split[1]])
+    extracted_lines = extracted_text.split("\n") 
+    extracted_lines = extracted_lines[1:] ## get rid of line that says "Features Applications"
+
+    ## line before every "•" contains a feature
+    feature_lines = []
+
+    for i in range(len(extracted_lines)):
+        if i == 0:
+            continue
+
+        if extracted_lines[i] == "•": ## extract line before
+            feature_lines.append(extracted_lines[i - 1])
+
+    ## returns the features in each line
+    def get_features_From_line(line):
+
+        end_of_feature = -1
+
+        for i in range(len(line)):
+            c = line[i]
+            if i > 0 and (ord(c) <= 90 and ord(c) >= 65):
+                end_of_feature = i
+                break
+
+        if end_of_feature == -1:
+            return line
+
+        return line[:end_of_feature]
+    
+    features = []
+    for line in feature_lines:
+        features.append(get_features_From_line(line))
+
+
+    return features
+
     ## create a product object
 def create_product_object(pdf_file):
 
     product_category, producer, product_model_id, product_description, reach_compliant, rohs_compliant, ul_comparable = read_basic_info(pdf_file)
     product_attributes = read_properties(pdf_file)
+    product_features = read_features(pdf_file)
 
     product = ProductWithAttributes(product_category, producer, product_model_id, product_description, "", "" , reach_compliant, rohs_compliant,
-                                    ul_comparable, product_attributes)
+                                    ul_comparable, product_features, product_attributes)
     
 
     return product
 
 
-file_name = ""  # a t global data sheet
+
+file_name = "" ## tglobal data sheet. Tested on thermal pad.
 
 with pdfplumber.open(file_name) as pdf:
     
-
     product = create_product_object(pdf)
 
-    
+
+
+
 
 
 
