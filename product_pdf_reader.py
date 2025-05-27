@@ -261,7 +261,7 @@ def read_features(pdf_file):
     
     features = []
     for line in feature_lines:
-        features.append(get_features_From_line(line))
+        features.append(get_features_From_line(line).strip())
 
 
     return features
