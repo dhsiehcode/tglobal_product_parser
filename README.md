@@ -17,3 +17,6 @@ Parses data sheet of t global product and enters relevant information into the d
 2. Put the data sheet to be read in cloud shell and take down the relative path and put in the parameter of the `read_pdf()` method at the bottom of `insert_product.py`
 3. Fill in `INSTANCE_CONNECTION_NAME`, `DB_USER`, `DB_PASS`, and `DB_NAME` variables with the Cloud SQL information in `db_models.py`
 4. Run `insert_product.py`
+
+### Comments
+Can probably put this on cloud run.
